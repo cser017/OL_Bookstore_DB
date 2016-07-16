@@ -1,0 +1,323 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww10800\viewh8400\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 \
+Part A. SQL Scripts for creating Bits Book Database Schema. \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b0 \cf0 \
+CREATE TABLE PUBLISHER\
+( P_Name     VARCHAR(50)  NOT NULL,\
+  P_Email      VARCHAR(50)  NOT NULL,\
+  P_Address  VARCHAR(50)  NOT NULL,\
+  P_ZIP          CHAR(5)           NOT NULL,\
+  PRIMARY KEY(P_Name),\
+  FOREIGN KEY(P_Address)  REFERENCES ADDRESS(Address)\
+        ON DELETE SET NULL         ON UPDATE CASCADE,\
+  FOREIGN KEY(P_ZIP)      REFERENCES ADDRESS(ZIP)\
+        ON DELETE SET NULL         ON UPDATE CASCADE\
+);\
+\
+\
+ CREATE TABLE PUBLISHER_PHONE\
+( P_Name     VARCHAR(50)  NOT NULL,\
+  P_Phone    CHAR(12)     NOT NULL,\
+  PRIMARY KEY(P_Name,P_Phone),\
+  FOREIGN KEY(P_Name)  REFERENCES PUBLISHER(P_Name)\
+ON DELETE SET NULL         ON UPDATE CASCADE\
+);\
+\
+ \
+CREATE TABLE BOOK\
+( ISBN       VARCHAR(13)  NOT NULL,\
+  Title      VARCHAR(150) NOT NULL,\
+  Year       DATE              NOT NULL,\
+  Format     VARCHAR(10)  NOT NULL,\
+  Language   VARCHAR(20)  NOT NULL, \
+  Price      DECIMAL(4,2) NOT NULL,\
+  PRIMARY KEY(ISBN)\
+);\
+\
+\
+CREATE TABLE BOOK_PUBLISHER\
+( ISBN       VARCHAR(13)    NOT NULL,\
+  P_Name     VARCHAR(50)   NOT NULL,\
+  PRIMARY KEY(ISBN, P_Name),\
+  FOREIGN KEY(ISBN) REFERENCES BOOK(ISBN)\
+        ON DELETE SET NULL         ON UPDATE CASCADE,\
+  FOREIGN KEY(P_Name) REFERENCES PUBLISHER(P_Name)\
+ON DELETE SET NULL         ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE CUSTOMER_INFO\
+( C_Email     VARCHAR(50)   NOT NULL,\
+  C_FName     VARCHAR(20),\
+  C_LName     VARCHAR(20),\
+  C_Phone     CHAR(12),\
+  PRIMARY KEY(C_Email)\
+);\
+\
+\
+CREATE TABLE CUSTOMER_PAYMENT\
+( C_Email      VARCHAR(50)  NOT NULL,\
+  C_Card        VARCHAR(50),\
+  PRIMARY KEY(C_Email),\
+  FOREIGN KEY(C_Email) REFERENCES CUSTOMER_INFO(C_Email)\
+ON DELETE CASCADE        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE ADDRESS\
+( Address      VARCHAR(50)  NOT NULL,\
+  ZIP              CHAR(5)      NOT NULL,    \
+  PRIMARY KEY(Address, ZIP),\
+  FOREIGN KEY(ZIP) REFERENCES ZIPCODE(ZIP)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE ZIPCODE \
+( ZIP                CHAR(5)      NOT NULL,\
+  City                VARCHAR(30)  NOT NULL,\
+  State                VARCHAR(2)   NOT NULL,\
+  PRIMARY KEY(ZIP)\
+);\
+\
+\
+CREATE TABLE ORDERS\
+( Order_ID       VARCHAR(10)  NOT NULL,\
+  Date           CHAR(10)      NOT NULL,\
+  Status         VARCHAR(10),\
+  PaymentInfo   VARCHAR(50)  NOT NULL,\
+  C_Email        VARCHAR(50)  NOT NULL,\
+  PRIMARY KEY(Order_ID),\
+  FOREIGN KEY(C_Email) REFERENCES CUSTOMER(C_Email)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE WAREHOUSE\
+( W_Code       CHAR(5)       NOT NULL,\
+  W_Phone      CHAR(12)      NOT NULL,\
+  W_Address    VARCHAR(50)   NOT NULL,\
+  W_ZIP        CHAR(5)       NOT NULL,\
+  PRIMARY KEY (W_Code),\
+  FOREIGN KEY(W_Address) REFERENCES ADDRESS(Address)\
+ON DELETE SET NULL        ON UPDATE CASCADE,\
+  FOREIGN KEY(W_ZIP) REFERENCES ADDRESS(ZIP)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE STORE_IN\
+( ISBN         VARCHAR(13)  NOT NULL,\
+  W_Code       CHAR(5)      NOT NULL,\
+  Quantity     INT,\
+  PRIMARY KEY (ISBN, W_Code), \
+  FOREIGN KEY(ISBN) REFERENCES BOOK(ISBN)\
+        ON DELETE CASCADE        ON UPDATE CASCADE,\
+  FOREIGN KEY(W_Code) REFERENCES WAREHOUSE(W_Code)\
+ON DELETE CASCADE        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE RESTOCK_ID\
+( R_ID         VARCHAR(10)   NOT NULL,\
+  Date         CHAR(10)              NOT NULL,\
+  Admin       VARCHAR(30),\
+  ISBN         VARCHAR(13)  NOT NULL,               \
+  Quantity     INT              NOT NULL,\
+  PRIMARY KEY(R_ID),\
+  FOREIGN KEY(ISBN)   REFERENCES BOOK(ISBN)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE CATEGORY_KEY\
+( Category_ID         VARCHAR(4)   NOT NULL,\
+  Category         VARCHAR(30)   NOT NULL,       \
+  PRIMARY KEY(Category_ID)\
+);\
+\
+\
+CREATE TABLE CATEGORY\
+( ISBN                 VARCHAR(13)   NOT NULL,\
+  Category_ID         VARCHAR(4)   NOT NULL,       \
+  PRIMARY KEY(ISBN,Category_ID),\
+  FOREIGN KEY(ISBN) REFERENCES BOOK(ISBN)\
+ON DELETE SET NULL        ON UPDATE CASCADE,\
+  FOREIGN KEY(Category_ID) REFERENCES CATEGORY_KEY(Category_ID)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE AUTHOR\
+( Author_ID     VARCHAR(15)    NOT NULL,\
+  First_Name    VARCHAR(30)        NOT NULL,\
+  MI            VARCHAR(30),\
+  Last_Name     VARCHAR(30)        NOT NULL,\
+  PRIMARY KEY(Author_ID)\
+);\
+\
+\
+CREATE TABLE WRITE\
+( ISBN          VARCHAR(13)   NOT NULL, \
+  Author_ID     VARCHAR(15)   NOT NULL,\
+  PRIMARY KEY (ISBN,AUTHOR_ID),\
+  FOREIGN KEY(ISBN) REFERENCES BOOK(ISBN)\
+ON DELETE CASCADE        ON UPDATE CASCADE,\
+  FOREIGN KEY(Author_ID) REFERENCES AUTHOR(Author_ID)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE RATE\
+( ISBN          VARCHAR(13)  NOT NULL,          \
+  C_Email       VARCHAR(50)  NOT NULL,\
+  Rating        INT              NOT NULL,\
+  PRIMARY KEY (ISBN,C_Email),\
+  FOREIGN KEY(ISBN)   REFERENCES BOOK(ISBN)\
+ON DELETE CASCADE        ON UPDATE CASCADE,\
+  FOREIGN KEY(C_Email) REFERENCES CUSTOMER(C_Email)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE CONSTITUTE\
+( ISBN          VARCHAR(13)  NOT NULL,\
+  Order_ID      VARCHAR(10)  NOT NULL,\
+  O_Quantity    INT              NOT NULL,\
+  PRIMARY KEY (ISBN,Order_ID),\
+  FOREIGN KEY(ISBN) REFERENCES BOOK(ISBN)\
+ON DELETE SET NULL        ON UPDATE CASCADE,\
+  FOREIGN KEY(Order_ID) REFERENCES ORDERS(Order_ID)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+CREATE TABLE C_LOCATE\
+( C_Email       VARCHAR(50)  NOT NULL,\
+  Address       VARCHAR(50)  NOT NULL,\
+  ZIP           CHAR(5)      NOT NULL,\
+  PRIMARY KEY (C_Email,Address,ZIP),\
+  FOREIGN KEY(C_Email) REFERENCES CUSTOMER(C_Email)\
+ON DELETE CASCADE        ON UPDATE CASCADE,\
+  FOREIGN KEY(Address) REFERENCES ADDRESS(Address)\
+ON DELETE SET NULL        ON UPDATE CASCADE,\
+  FOREIGN KEY(ZIP)     REFERENCES ADDRESS(ZIP)\
+ON DELETE SET NULL        ON UPDATE CASCADE\
+);\
+\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b \cf0 Part B. SQL Scripts for creating indexes. \
+\pard\pardeftab720\ri720\sl276\slmult1\sb360\sa120\partightenfactor0
+
+\b0 \cf0 CREATE UNIQUE INDEX  PU_addr ON PUBLISHER(P_Address);\
+CREATE INDEX  PU_zip ON PUBLISHER(P_ZIP);\
+CREATE INDEX  BO_form ON BOOK(Format);\
+CREATE INDEX  BO_year ON BOOK(Year);\
+CREATE INDEX  BO_lang ON BOOK(Language);\
+CREATE INDEX  BO_titl ON BOOK(TITLE);\
+CREATE INDEX BO_pric ON BOOK(PRICE);\
+CREATE INDEX  RI_adm ON RESTOCK_ID(Admin);\
+CREATE UNIQUE INDEX  RI_isbn ON RESTOCK_ID(ISBN);\
+CREATE INDEX  RI_date ON RESTOCK_ID(Date);\
+CREATE INDEX  RA_rati ON RATE(Rating);\
+CREATE INDEX  CO_quan ON CONSTITUTE(O_Quantity);\
+CREATE INDEX  OR_stat ON ORDERS(Status);\
+CREATE INDEX  OR_date ON ORDERS(Date);\
+CREATE UNIQUE INDEX  OR_cema ON ORDERS(C_Email);\
+CREATE UNIQUE INDEX  WA_addr ON WAREHOUSE(W_Address);\
+CREATE INDEX  WA_zip ON WAREHOUSE(W_ZIP);\
+CREATE INDEX  SI_quan ON STORE_IN(Quantity);\
+CREATE INDEX  AU_fnam ON AUTHOR(First_Name); \
+CREATE INDEX  AU_lnam ON AUTHOR(Last_Name);\
+CREATE UNIQUE INDEX  CA_id ON CATEGORY(Category_ID);\
+CREATE UNIQUE INDEX  CA_isbn ON CATEGORY(ISBN);\
+CREATE INDEX  CK_cate ON CATEGORY_KEY(Category);\
+CREATE UNIQUE INDEX  CL_cema ON C_LOCATE(C_Email);\
+CREATE INDEX  CL_zip ON C_LOCATE(ZIP);\
+CREATE INDEX  AD_zip ON ADDRESS(ZIP);\
+CREATE INDEX  ZI_city ON ZIPCODE(City);\
+CREATE INDEX  ZI_Stat ON ZIPCODE(State);\
+
+\b Part. C. Useful views. \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+\cf0 \
+1. View "POPULAR" for best selling books. \
+\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+
+\b0 \cf0 CREATE VIEW POPULAR\
+AS	SELECT Title, B.ISBN,SUM(O_Quantity) AS Sum\
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 FROM BOOK AS B, CONSTITUTE AS C\
+WHERE \
+\pard\pardeftab720\li1440\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 B.ISBN = C.ISBN\
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 GROUP BY B.ISBN\
+ORDER BY Sum DESC;\
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b \cf0 2. View "INV_SHORT" for best selling books.\
+\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+
+\b0 \cf0 CREATE VIEW INV_SHORT\
+AS 	SELECT B.Title, B.ISBN, S.Quantity\
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 FROM BOOK AS B, STORE_IN AS S\
+WHERE\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+\cf0             	B.ISBN = S.ISBN \
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 GROUP BY S.ISBN\
+HAVING sum (S.Quantity) < 15; \
+\
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b \cf0 3. View "BOOK_RATING" for average book rating by customers. \
+\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+
+\b0 \cf0 CREATE VIEW BOOK_RATING\
+AS 	SELECT B.Title, B.ISBN, AVG(R.Rating)\
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 FROM BOOK AS B, RATE AS R\
+WHERE\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+\cf0             	B.ISBN = R.ISBN \
+\pard\pardeftab720\li720\fi720\ri720\sl276\slmult1\partightenfactor0
+\cf0 GROUP BY R.ISBN\
+\pard\pardeftab720\li720\ri720\sl276\slmult1\partightenfactor0
+\cf0 ORDER BY AVG(R.Rating);\
+\pard\pardeftab720\ri720\sl276\slmult1\partightenfactor0
+\cf0 \
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\pardirnatural\partightenfactor0
+
+\b \cf0 \
+4. View "CUSTOMER_SALE" for total dollar amount sale by customer in descending order.\
+\
+\pard\pardeftab720\li720\ri720\sl360\slmult1\partightenfactor0
+
+\b0 \cf0 CREATE VIEW CUSTOMER_SALE\
+AS 	SELECT      	C_FName, C_LName, SUM(B.Price * C.O_Quantity) AS C_SUM\
+\pard\pardeftab720\li720\fi720\ri720\sl360\slmult1\partightenfactor0
+\cf0 FROM             BOOK AS B, CONSTITUTE AS C, CUSTOMER_INFO AS U, ORDERS AS O\
+WHERE       	B.ISBN = C.ISBN AND O.C_Email = U.C_Email\
+\pard\pardeftab720\li720\ri720\sl360\slmult1\partightenfactor0
+\cf0                                  	AND C.Order_ID = O.Order_ID\
+\pard\pardeftab720\li720\fi720\ri720\sl360\slmult1\partightenfactor0
+\cf0 GROUP BY 	U.C_Email\
+\pard\pardeftab720\ri720\sl276\slmult1\partightenfactor0
+\cf0 		ORDER BY	C_SUM DESC;
+\b \
+}
